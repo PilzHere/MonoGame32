@@ -12,7 +12,7 @@ namespace MonoGame32.GameState
         {
             Game = game;
             SpriteBatch = spriteBatch;
-            Console.WriteLine("GameState constructor");
+            //Console.WriteLine("GameState constructor");
         }
 
         public abstract void HandleInput(float dt);

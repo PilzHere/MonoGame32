@@ -27,5 +27,25 @@ namespace MonoGame32.GameMath
             _fps = (1 / _deltaTime);
             _smoothedFps = (int) Math.Round(_fps);
         }
+        
+        public static double BytesToKilobytes(int bytes)
+        {
+            return bytes / 1024d;
+        }
+        
+        public static double BytesToKilobytes(long bytes)
+        {
+            return bytes / 1024d;
+        }
+        
+        public static double BytesToMegabytes(int bytes)
+        {
+            return bytes / 1024d / 1024d;
+        }
+        
+        public static double BytesToMegabytes(long bytes)
+        {
+            return bytes / 1024d / 1024d;
+        }
     }
 }

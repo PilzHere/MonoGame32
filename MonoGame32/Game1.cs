@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using mmState = MonoGame32.GameState.MainMenuState;
+using MonoGame32.PlatformSystem;
 using gState = MonoGame32.GameState;
 
 namespace MonoGame32
@@ -18,6 +17,8 @@ namespace MonoGame32
 
         public Game1()
         {
+            Console.WriteLine("Running MonoGame32");
+            
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
@@ -26,16 +27,12 @@ namespace MonoGame32
             IsMouseVisible = true;
 
             GameSettings.GameSettings.Init(this, _graphics);
-            
-            // To get gpu info!
-            //GraphicsDeviceInformation g = new GraphicsDeviceInformation();
-            //g.
         }
 
         protected override void Initialize()
         {
-            // Bug in MonoGame v3.8: graphics need to be set here instead of in constructor. Will be fixed in v3.8.1.
-            GameSettings.GameSettings.SettingMaxFps = 144; // TODO read from file and/or change in options.
+            // BUG: MonoGame v3.8.0 - Graphics need to be set here instead of in constructor. Will be fixed in v3.8.1.
+            GameSettings.GameSettings.SettingMaxFps = 144; // TODO: Read from file and/or change in options.
             GameSettings.GameSettings.SettingFullscreen = false;
             GameSettings.GameSettings.WindowWidth = 1280;
             GameSettings.GameSettings.WindowHeight = 720;
@@ -52,11 +49,13 @@ namespace MonoGame32
 
         protected override void LoadContent()
         {
+            PlatformSystem.SystemAnalyzer.Init(_graphics.GraphicsDevice);
+            
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            // TODO: Use this.Content to load your game content here
             _gameStates = new Stack<gState.GameState>();
-            AddGameState(new mmState.MainMenuState(this, _spriteBatch));
+            AddGameState(new gState.MainMenuState(this, _spriteBatch));
         }
 
         protected override void Update(GameTime gameTime)
@@ -78,11 +77,13 @@ namespace MonoGame32
             // TODO: Add your drawing code here
             _gameStates.First().Render(GameMath.GameMath.DeltaTime);
 
-            Window.Title = "MonoGame32 | " + GameMath.GameMath.SmoothedFps + " FPS @ " +
+            Window.Title = "MonoGame32 | " + GameMath.GameMath.SmoothedFps + " FPS / " +
                            GameMath.GameMath.DeltaTime +
-                           "ms";
+                           "ms | " + SystemAnalyzer.ProcessMemoryUsed +" / "+ SystemAnalyzer.ProcessMemoryAllocated + " MiB";
 
             base.Draw(gameTime);
+            
+            SystemAnalyzer.PrintMemoryUsage();
         }
 
         public void ExitCurrentGameState()
@@ -92,7 +93,7 @@ namespace MonoGame32
                 _gameStates.First().ExitState();
                 _gameStates.Pop();
             }
-            
+
             if (_gameStates.Count == 0)
                 ExitGame();
         }
@@ -107,13 +108,12 @@ namespace MonoGame32
             Exit();
         }
 
-        
 
         protected override void OnExiting(object sender, EventArgs args)
         {
             ExitCurrentGameState();
             _gameStates.Clear();
-            
+
             base.OnExiting(sender, args);
         }
     }
