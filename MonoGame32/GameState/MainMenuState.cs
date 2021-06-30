@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame32.Entity;
 
 namespace MonoGame32.GameState
 {
@@ -10,6 +11,7 @@ namespace MonoGame32.GameState
         public MainMenuState(Game1 game, SpriteBatch spriteBatch) : base(game, spriteBatch)
         {
             //Console.WriteLine("MainMenuState constructor");
+            Entities.Add(new Player(this, Vector2.Zero));
         }
 
         public override void HandleInput(float dt)
@@ -18,7 +20,7 @@ namespace MonoGame32.GameState
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Game.ExitGame();
+                _game.ExitGame();
         }
 
         public override void Tick(float dt)
@@ -33,7 +35,9 @@ namespace MonoGame32.GameState
 
         public override void ExitState()
         {
-            Console.WriteLine("MainMenuState exit!");
+            base.ExitState(); // Should be called here.
+            
+            //Console.WriteLine("MainMenuState exit!");
         }
     }
 }

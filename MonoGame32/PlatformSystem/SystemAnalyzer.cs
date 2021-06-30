@@ -56,7 +56,7 @@ namespace MonoGame32.PlatformSystem
             //Console.WriteLine("2" + Environment.MachineName);
             //Console.WriteLine("WorkingSet: " + GameMath.GameMath.BytesToMegabytes(Environment.WorkingSet) + " MiB");
 
-            // Platform specific code?
+            // TODO: Platform specific code?
             /*switch (_operatingSystem.Platform)
             {
                 case PlatformID.Win32NT:
@@ -72,7 +72,7 @@ namespace MonoGame32.PlatformSystem
         }
 
         /// <summary>
-        /// Not sure if this is correct...
+        /// TODO: Not sure if this is correct...
         /// </summary>
         public static void PrintMemoryUsage()
         {

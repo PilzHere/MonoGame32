@@ -60,6 +60,8 @@ namespace MonoGame32
 
         protected override void Update(GameTime gameTime)
         {
+            SystemAnalyzer.PrintMemoryUsage();
+            
             GameMath.GameMath.CalculateDeltaTime(gameTime);
             GameMath.GameMath.CalculateFps();
 
@@ -82,8 +84,6 @@ namespace MonoGame32
                            "ms | " + SystemAnalyzer.ProcessMemoryUsed +" / "+ SystemAnalyzer.ProcessMemoryAllocated + " MiB";
 
             base.Draw(gameTime);
-            
-            SystemAnalyzer.PrintMemoryUsage();
         }
 
         public void ExitCurrentGameState()
