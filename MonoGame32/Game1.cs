@@ -54,6 +54,9 @@ namespace MonoGame32
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: Use this.Content to load your game content here
+            Content.Load<Texture2D>("Textures/default");
+            Content.Unload();
+            
             _gameStates = new Stack<gState.GameState>();
             AddGameState(new gState.MainMenuState(this, _spriteBatch));
         }
