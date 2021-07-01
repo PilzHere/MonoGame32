@@ -20,7 +20,7 @@ namespace MonoGame32.GameState
             //player = new Player(this, new Vector2(16, 16));
             //Entities.Add(player);
 
-            int numOfEntities = 100000; // 150000
+            int numOfEntities = 64000; // 150000
             Random rand = new Random();
             for (int i = 1; i <= numOfEntities; i++)
             {

@@ -17,12 +17,12 @@ namespace MonoGame32.GameSettings
             _graphics = graphicsDeviceManager;
         }
 
-        private static int _settingMaxFps = 60; // 60 hertz is standard for monitors.
+        private static int _settingTargetFps = 60; // 60 hertz is standard for monitors.
 
-        public static int SettingMaxFps
+        public static int SettingTargetFps
         {
-            get => _settingMaxFps;
-            set => _settingMaxFps = value;
+            get => _settingTargetFps;
+            set => _settingTargetFps = value;
         }
 
         private static bool _settingUseVSync = true;
@@ -47,7 +47,7 @@ namespace MonoGame32.GameSettings
             {
                 _windowWidth = value;
                 //_graphics.PreferredBackBufferWidth = _windowWidth;
-                
+
                 _applyNewChanges = true;
             }
         }
@@ -59,11 +59,11 @@ namespace MonoGame32.GameSettings
             {
                 _windowHeight = value;
                 //_graphics.PreferredBackBufferHeight = _windowHeight;
-                
+
                 _applyNewChanges = true;
             }
         }
-        
+
         private static int _fullscreenWindowWidth = 1920, _fullscreenWindowHeight = 1080; // Default values.
 
         public static int FullscreenWindowWidth
@@ -95,7 +95,26 @@ namespace MonoGame32.GameSettings
             set
             {
                 _settingFullscreen = value;
-                _graphics.IsFullScreen = _settingFullscreen;
+                //_graphics.IsFullScreen = _settingFullscreen;
+
+                _applyNewChanges = true;
+            }
+        }
+
+        /// <summary>
+        /// Bool for switching from windowed -> fullscreen and fullscreen -> windowed.
+        /// <br/><b>true</b>: Uses hardware to switch. Slower but better performance.
+        /// <br/><b>false</b>: Faster but worse in performance.
+        /// </summary>
+        private static bool _settingHardwareModeSwitch = true;
+
+        public static bool SettingHardwareModeSwitch
+        {
+            get => _settingHardwareModeSwitch;
+            set
+            {
+                _settingHardwareModeSwitch = value;
+                _graphics.HardwareModeSwitch = _settingHardwareModeSwitch;
 
                 _applyNewChanges = true;
             }
@@ -114,15 +133,15 @@ namespace MonoGame32.GameSettings
             }
         }
 
-        private static bool _settingCapFpsToMaxFps = true;
+        private static bool _settingCapFpsToTargetFps = true;
 
-        public static bool SettingCapFpsToMaxFps
+        public static bool SettingCapFpsToTargetFps
         {
-            get => _settingCapFpsToMaxFps;
+            get => _settingCapFpsToTargetFps;
             set
             {
-                _settingCapFpsToMaxFps = value;
-                _game.IsFixedTimeStep = _settingCapFpsToMaxFps;
+                _settingCapFpsToTargetFps = value;
+                _game.IsFixedTimeStep = _settingCapFpsToTargetFps;
             }
         }
 
@@ -149,13 +168,19 @@ namespace MonoGame32.GameSettings
 
                     _graphics.PreferredBackBufferWidth = _fullscreenWindowWidth;
                     _graphics.PreferredBackBufferHeight = _fullscreenWindowHeight;
+
+                    _graphics.IsFullScreen = true;
                 }
                 else
                 {
                     _graphics.PreferredBackBufferWidth = _windowWidth;
                     _graphics.PreferredBackBufferHeight = _windowHeight;
+
+                    _graphics.IsFullScreen = false;
                 }
-                
+
+                if (_settingUseVSync) _settingCapFpsToTargetFps = false;
+
                 _graphics.SynchronizeWithVerticalRetrace = _settingUseVSync;
                 _graphics.PreferMultiSampling = _settingMsaa;
 

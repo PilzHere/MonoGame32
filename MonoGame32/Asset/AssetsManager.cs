@@ -21,7 +21,7 @@ namespace MonoGame32.Asset
         }
 
         public string DefaultTexture = "Textures/default";
-        
+
         private void LoadTextures()
         {
             _contentManager.Load<Texture2D>(DefaultTexture);

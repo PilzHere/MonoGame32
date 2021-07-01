@@ -74,7 +74,7 @@ namespace MonoGame32.PlatformSystem
         /// <summary>
         /// TODO: Not sure if this is correct...
         /// </summary>
-        public static void PrintMemoryUsage()
+        public static void UpdateMemoryUsage()
         {
             //Console.WriteLine("WorkingSet: " + Math.Floor(GameMath.GameMath.BytesToMegabytes(Environment.WorkingSet)) + " MiB");
             //Console.WriteLine(GameMath.GameMath.BytesToMegabytes(Process.GetCurrentProcess().PrivateMemorySize64) + " MiB");

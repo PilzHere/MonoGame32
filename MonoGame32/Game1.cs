@@ -51,16 +51,18 @@ namespace MonoGame32
         protected override void Initialize()
         {
             // BUG: MonoGame v3.8.0 - Graphics need to be set here instead of in constructor. Will be fixed in v3.8.1.
-            GameSettings.GameSettings.SettingMaxFps = 144; // TODO: Read from file and/or change in options.
+            GameSettings.GameSettings.SettingTargetFps =
+                144; // TODO: Read all settings from file and/or change in GUI options.
             GameSettings.GameSettings.SettingFullscreen = false;
+            GameSettings.GameSettings.SettingHardwareModeSwitch = false;
             GameSettings.GameSettings.WindowWidth = 854;
             GameSettings.GameSettings.WindowHeight = 480;
-            GameSettings.GameSettings.RenderScale = 4;
+            GameSettings.GameSettings.RenderScale = 2;
             GameSettings.GameSettings.SettingMsaa = false;
-            GameSettings.GameSettings.SettingUseVSync = false;
-            GameSettings.GameSettings.SettingCapFpsToMaxFps = true;
+            GameSettings.GameSettings.SettingUseVSync = false; // if true set CapFpsToMaxFps to false.
+            GameSettings.GameSettings.SettingCapFpsToTargetFps = true; // BUG: Doesnt tell correct fps if true(?).
             GameSettings.GameSettings.TimeBetweenFramesWhenCappedToMaxFps =
-                TimeSpan.FromSeconds(1d / GameSettings.GameSettings.SettingMaxFps);
+                TimeSpan.FromSeconds(1d / GameSettings.GameSettings.SettingTargetFps);
 
             GameSettings.GameSettings.ApplyNewWindowAndGraphicsSettings();
 
@@ -87,9 +89,11 @@ namespace MonoGame32
             AddGameState(new gState.MainMenuState(this, _spriteBatch, _assetsManager));
         }
 
+        private int _ticks;
+
         protected override void Update(GameTime gameTime)
         {
-            SystemAnalyzer.PrintMemoryUsage();
+            SystemAnalyzer.UpdateMemoryUsage();
 
             GameMath.GameMath.CalculateDeltaTime(gameTime);
             GameMath.GameMath.CalculateFps();
@@ -98,14 +102,18 @@ namespace MonoGame32
             _gameStates.First().Tick(GameMath.GameMath.DeltaTime);
 
             base.Update(gameTime);
+
+            _ticks++;
         }
 
         protected override bool BeginDraw()
         {
             GameSettings.GameSettings.ApplyNewWindowAndGraphicsSettings();
-            
+
             return base.BeginDraw();
         }
+
+        private int _frames;
 
         protected override void Draw(GameTime gameTime)
         {
@@ -121,23 +129,58 @@ namespace MonoGame32
             _fboTexture = _fbo;
             _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
             _spriteBatch.Draw(_fboTexture, Vector2.Zero, null, Color.White, 0.0f, Vector2.Zero,
-                new Vector2((float) _graphics.PreferredBackBufferWidth / _fboTexture.Width,
-                    (float) _graphics.PreferredBackBufferHeight / _fboTexture.Height),
+                new Vector2((float) _graphics.PreferredBackBufferWidth / _fboTexture.Width * 2,
+                    (float) _graphics.PreferredBackBufferHeight / _fboTexture.Height * 2),
                 SpriteEffects.None, 0.0f);
             _spriteBatch.End();
 
             base.Draw(gameTime);
 
-            UpdateWindowTitle();
+            _frames++;
+
+            OneSecondHavePassed(gameTime);
+
+            //Console.WriteLine(gameTime.ElapsedGameTime.TotalSeconds);
+            // Update framecounter when one second has passed?!
         }
 
         private void UpdateWindowTitle()
         {
-            Window.Title = "MonoGame32 | " + GameMath.GameMath.SmoothedFps + " FPS / " +
+            Window.Title = "MonoGame32 | " + /*GameMath.GameMath.SmoothedFps*/ _frames + " FPS / " +
+                           _frameTime.ToString("F7") +
+                           " ms | " + _ticks +
+                           " UPS / " + _tickTime.ToString("F7") + " ms | DT: " +
                            GameMath.GameMath.DeltaTime +
-                           "ms | " + SystemAnalyzer.ProcessMemoryUsed + " / " + SystemAnalyzer.ProcessMemoryAllocated +
+                           " ms | " + SystemAnalyzer.ProcessMemoryUsed + " / " +
+                           SystemAnalyzer.ProcessMemoryAllocated +
                            " MiB";
         }
+
+        private float _timePassed;
+        private float _tickTime;
+        private float _frameTime;
+
+        private bool OneSecondHavePassed(GameTime gameTime)
+        {
+            _timePassed += (float) gameTime.ElapsedGameTime.TotalSeconds;
+
+            //Console.WriteLine(_ticks);
+            //Console.WriteLine(_frames);
+
+            if (_timePassed >= 1.0f)
+            {
+                UpdateWindowTitle();
+                _timePassed = _timePassed - 1.0f;
+                _tickTime = 1f / _ticks;
+                _frameTime = 1f / _frames;
+                _ticks = 0;
+                _frames = 0;
+                return true;
+            }
+
+            return false;
+        }
+
 
         public void ExitCurrentGameState()
         {

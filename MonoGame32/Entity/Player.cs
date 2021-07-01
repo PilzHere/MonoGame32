@@ -33,7 +33,7 @@ namespace MonoGame32.Entity
 
         private bool goRight = true;
         private bool goNorth = true;
-        private float speed = 50.0f;
+        private float speed = 24.0f;
         
         public override void Tick(float dt)
         {   
