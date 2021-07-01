@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace MonoGame32.GameSettings
 {
@@ -7,6 +8,8 @@ namespace MonoGame32.GameSettings
     {
         private static GraphicsDeviceManager _graphics;
         private static Game _game;
+
+        private static bool _applyNewChanges = false;
 
         public static void Init(Game game, GraphicsDeviceManager graphicsDeviceManager)
         {
@@ -30,11 +33,12 @@ namespace MonoGame32.GameSettings
             set
             {
                 _settingUseVSync = value;
-                _graphics.SynchronizeWithVerticalRetrace = _settingUseVSync;
+
+                _applyNewChanges = true;
             }
         }
 
-        private static int _windowWidth = 1280, _windowHeight = 720; // Default values.
+        private static int _windowWidth = 854, _windowHeight = 480; // Default values.
 
         public static int WindowWidth
         {
@@ -42,7 +46,9 @@ namespace MonoGame32.GameSettings
             set
             {
                 _windowWidth = value;
-                _graphics.PreferredBackBufferWidth = _windowWidth;
+                //_graphics.PreferredBackBufferWidth = _windowWidth;
+                
+                _applyNewChanges = true;
             }
         }
 
@@ -52,8 +58,33 @@ namespace MonoGame32.GameSettings
             set
             {
                 _windowHeight = value;
-                _graphics.PreferredBackBufferHeight = _windowHeight;
+                //_graphics.PreferredBackBufferHeight = _windowHeight;
+                
+                _applyNewChanges = true;
             }
+        }
+        
+        private static int _fullscreenWindowWidth = 1920, _fullscreenWindowHeight = 1080; // Default values.
+
+        public static int FullscreenWindowWidth
+        {
+            get => _fullscreenWindowWidth;
+            set => _fullscreenWindowWidth = value;
+        }
+
+        public static int FullscreenWindowHeight
+        {
+            get => _fullscreenWindowHeight;
+            set => _fullscreenWindowHeight = value;
+        }
+
+        // X screen pixels per fbo pixel.
+        private static int _renderScale = 4; // 4 Default value.
+
+        public static int RenderScale
+        {
+            get => _renderScale;
+            set => _renderScale = value;
         }
 
         private static bool _settingFullscreen = false;
@@ -65,6 +96,8 @@ namespace MonoGame32.GameSettings
             {
                 _settingFullscreen = value;
                 _graphics.IsFullScreen = _settingFullscreen;
+
+                _applyNewChanges = true;
             }
         }
 
@@ -73,7 +106,12 @@ namespace MonoGame32.GameSettings
         public static bool SettingMsaa
         {
             get => _settingMsaa;
-            set => _settingMsaa = value;
+            set
+            {
+                _settingMsaa = value;
+
+                _applyNewChanges = true;
+            }
         }
 
         private static bool _settingCapFpsToMaxFps = true;
@@ -102,7 +140,29 @@ namespace MonoGame32.GameSettings
 
         public static void ApplyNewWindowAndGraphicsSettings()
         {
-            _graphics.ApplyChanges();
+            if (_applyNewChanges)
+            {
+                if (_settingFullscreen)
+                {
+                    _fullscreenWindowWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+                    _fullscreenWindowHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+
+                    _graphics.PreferredBackBufferWidth = _fullscreenWindowWidth;
+                    _graphics.PreferredBackBufferHeight = _fullscreenWindowHeight;
+                }
+                else
+                {
+                    _graphics.PreferredBackBufferWidth = _windowWidth;
+                    _graphics.PreferredBackBufferHeight = _windowHeight;
+                }
+                
+                _graphics.SynchronizeWithVerticalRetrace = _settingUseVSync;
+                _graphics.PreferMultiSampling = _settingMsaa;
+
+                _graphics.ApplyChanges();
+
+                _applyNewChanges = false;
+            }
         }
     }
 }
