@@ -9,7 +9,23 @@ namespace MonoGame32.GameSettings
         private static GraphicsDeviceManager _graphics;
         private static Game _game;
 
-        private static bool _applyNewChanges = false;
+        private static bool _applyNewChanges;
+
+        private static bool _drawBoundingBoxes;
+
+        public static bool DrawBoundingBoxes
+        {
+            get => _drawBoundingBoxes;
+            set => _drawBoundingBoxes = value;
+        }
+
+        private static bool _printRenderInformation;
+
+        public static bool PrintRenderInformation
+        {
+            get => _printRenderInformation;
+            set => _printRenderInformation = value;
+        }
 
         public static void Init(Game game, GraphicsDeviceManager graphicsDeviceManager)
         {
@@ -87,7 +103,7 @@ namespace MonoGame32.GameSettings
             set => _renderScale = value;
         }
 
-        private static bool _settingFullscreen = false;
+        private static bool _settingFullscreen;
 
         public static bool SettingFullscreen
         {
@@ -120,7 +136,7 @@ namespace MonoGame32.GameSettings
             }
         }
 
-        private static bool _settingMsaa = false; // Multisampling.
+        private static bool _settingMsaa; // Multisampling.
 
         public static bool SettingMsaa
         {

@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame32.Asset;
+using MonoGame32.Input;
 using MonoGame32.PlatformSystem;
 using gState = MonoGame32.GameState;
 
@@ -50,6 +51,11 @@ namespace MonoGame32
 
         protected override void Initialize()
         {
+            
+            // For debugging
+            GameSettings.GameSettings.PrintRenderInformation = true;
+            GameSettings.GameSettings.DrawBoundingBoxes = true;
+            
             // BUG: MonoGame v3.8.0 - Graphics need to be set here instead of in constructor. Will be fixed in v3.8.1.
             GameSettings.GameSettings.SettingTargetFps =
                 144; // TODO: Read all settings from file and/or change in GUI options.
@@ -57,7 +63,7 @@ namespace MonoGame32
             GameSettings.GameSettings.SettingHardwareModeSwitch = false;
             GameSettings.GameSettings.WindowWidth = 854;
             GameSettings.GameSettings.WindowHeight = 480;
-            GameSettings.GameSettings.RenderScale = 2;
+            GameSettings.GameSettings.RenderScale = 1;
             GameSettings.GameSettings.SettingMsaa = false;
             GameSettings.GameSettings.SettingUseVSync = false; // if true set CapFpsToMaxFps to false.
             GameSettings.GameSettings.SettingCapFpsToTargetFps = true; // BUG: Doesnt tell correct fps if true(?).
@@ -71,7 +77,7 @@ namespace MonoGame32
 
         protected override void LoadContent()
         {
-            PlatformSystem.SystemAnalyzer.Init(_graphics.GraphicsDevice);
+            SystemAnalyzer.Init(_graphics.GraphicsDevice);
 
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -84,6 +90,7 @@ namespace MonoGame32
                 SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
             _fboTexture = _fbo;
 
+            InputProcessor.SetupKeys();
 
             _gameStates = new Stack<gState.GameState>();
             AddGameState(new gState.MainMenuState(this, _spriteBatch, _assetsManager));
@@ -99,6 +106,7 @@ namespace MonoGame32
             GameMath.GameMath.CalculateFps();
 
             _gameStates.First().HandleInput(GameMath.GameMath.DeltaTime);
+            _gameStates.First().HandleCollisions();
             _gameStates.First().Tick(GameMath.GameMath.DeltaTime);
 
             base.Update(gameTime);
@@ -117,20 +125,21 @@ namespace MonoGame32
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
             _graphics.GraphicsDevice.SetRenderTarget(_fbo); // Draw on Fbo.
 
-            GraphicsDevice.Clear(Color.WhiteSmoke);
-            _gameStates.First().Render(GameMath.GameMath.DeltaTime);
-
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+            _gameStates.First().Render(GameMath.GameMath.DeltaTime); // Render current GameState.
+            _gameStates.First().RenderBoundingBoxes(); // Render bounding boxes. For debugging purpose.
+            
             _graphics.GraphicsDevice.SetRenderTarget(null); // Stop using Fbo.
 
             // Draw Fbo.
             _fboTexture = _fbo;
             _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
             _spriteBatch.Draw(_fboTexture, Vector2.Zero, null, Color.White, 0.0f, Vector2.Zero,
-                new Vector2((float) _graphics.PreferredBackBufferWidth / _fboTexture.Width * 2,
-                    (float) _graphics.PreferredBackBufferHeight / _fboTexture.Height * 2),
+                new Vector2((float) _graphics.PreferredBackBufferWidth / _fboTexture.Width * 4,
+                    (float) _graphics.PreferredBackBufferHeight / _fboTexture.Height * 4),
                 SpriteEffects.None, 0.0f);
             _spriteBatch.End();
 
@@ -138,10 +147,21 @@ namespace MonoGame32
 
             _frames++;
 
-            OneSecondHavePassed(gameTime);
+            UpdateTickAndRenderDataIfOneSecondHasPassed(gameTime);
 
-            //Console.WriteLine(gameTime.ElapsedGameTime.TotalSeconds);
-            // Update framecounter when one second has passed?!
+            if (GameSettings.GameSettings.PrintRenderInformation) PrintRenderInformation();
+        }
+
+        private void PrintRenderInformation()
+        {
+            Console.WriteLine("-Render info-\nCalls -> Drawcalls: " + GraphicsDevice.Metrics.DrawCount + " ClearCalls: " +
+                              GraphicsDevice.Metrics.ClearCount + "\nShader switches -> Vertex: " +
+                              GraphicsDevice.Metrics.VertexShaderCount + " Fragment: " +
+                              GraphicsDevice.Metrics.PixelShaderCount + "\nTexture switches: " +
+                              GraphicsDevice.Metrics.TextureCount + "\nTarget changes: " +
+                              GraphicsDevice.Metrics.TargetCount + "\nPrimitives: " +
+                              GraphicsDevice.Metrics.PrimitiveCount + " Sprites: " +
+                              GraphicsDevice.Metrics.SpriteCount);
         }
 
         private void UpdateWindowTitle()
@@ -160,25 +180,18 @@ namespace MonoGame32
         private float _tickTime;
         private float _frameTime;
 
-        private bool OneSecondHavePassed(GameTime gameTime)
+        private void UpdateTickAndRenderDataIfOneSecondHasPassed(GameTime gameTime)
         {
             _timePassed += (float) gameTime.ElapsedGameTime.TotalSeconds;
 
-            //Console.WriteLine(_ticks);
-            //Console.WriteLine(_frames);
-
-            if (_timePassed >= 1.0f)
-            {
-                UpdateWindowTitle();
-                _timePassed = _timePassed - 1.0f;
-                _tickTime = 1f / _ticks;
-                _frameTime = 1f / _frames;
-                _ticks = 0;
-                _frames = 0;
-                return true;
-            }
-
-            return false;
+            if (!(_timePassed >= 1.0f)) return;
+            
+            UpdateWindowTitle();
+            _timePassed -= 1.0f;
+            _tickTime = 1f / _ticks;
+            _frameTime = 1f / _frames;
+            _ticks = 0;
+            _frames = 0;
         }
 
 

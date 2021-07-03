@@ -44,8 +44,7 @@ namespace MonoGame32.PlatformSystem
 
             Console.WriteLine("-System-");
             Console.Write("OS: " + _operatingSystem.VersionString);
-            if (_architecture) Console.WriteLine(" 64 bit");
-            else Console.WriteLine(" 32 bit");
+            Console.WriteLine(_architecture ? " 64 bit" : " 32 bit");
             Console.WriteLine("dotNET: " + _dotNetVersion);
             Console.WriteLine("GPU: " + _gpuName);
 

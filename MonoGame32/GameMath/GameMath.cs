@@ -5,6 +5,8 @@ namespace MonoGame32.GameMath
 {
     public static class GameMath
     {
+        private const double KiloByte = 1024d;
+        
         private static float _deltaTime;
 
         public static float DeltaTime => _deltaTime;
@@ -30,22 +32,22 @@ namespace MonoGame32.GameMath
         
         public static double BytesToKilobytes(int bytes)
         {
-            return bytes / 1024d;
+            return bytes / KiloByte;
         }
         
         public static double BytesToKilobytes(long bytes)
         {
-            return bytes / 1024d;
+            return bytes / KiloByte;
         }
         
         public static double BytesToMegabytes(int bytes)
         {
-            return bytes / 1024d / 1024d;
+            return bytes / KiloByte / KiloByte;
         }
         
         public static double BytesToMegabytes(long bytes)
         {
-            return bytes / 1024d / 1024d;
+            return bytes / KiloByte / KiloByte;
         }
     }
 }
