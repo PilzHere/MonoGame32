@@ -26,6 +26,14 @@ namespace MonoGame32.GameSettings
             get => _printRenderInformation;
             set => _printRenderInformation = value;
         }
+        
+        private static bool _printCollisionsInformation;
+
+        public static bool PrintCollisionsInformation
+        {
+            get => _printCollisionsInformation;
+            set => _printCollisionsInformation = value;
+        }
 
         public static void Init(Game game, GraphicsDeviceManager graphicsDeviceManager)
         {

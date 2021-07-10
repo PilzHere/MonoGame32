@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace MonoGame32.Component
@@ -10,7 +11,6 @@ namespace MonoGame32.Component
         short GetMaskBits(); // What do I collide with.
         void SetMaskBits(short bits);
         void OnCollision(Entity.Entity otherEntity, IBoxComponent otherBoxComp);
-        void OnCollisionX(Entity.Entity otherEntity, IBoxComponent otherBoxComp);
-        void OnCollisionY(Entity.Entity otherEntity, IBoxComponent otherBoxComp);
+        List<BoundingBox> GetIntersectingBoxes();
     }
 }

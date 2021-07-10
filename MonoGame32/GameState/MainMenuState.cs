@@ -21,10 +21,26 @@ namespace MonoGame32.GameState
             //Console.WriteLine("MainMenuState constructor");
 
             //Entities.Add(new Player(this, Vector2.Zero));
-            player = new Player(this, new Vector2(32, 32));
+            //Entities.Add(new Terrain(this, new Vector2(64, 32)));
+            //Entities.Add(new Terrain(this, new Vector2(80, 32)));
+            Entities.Add(new Terrain(this, new Vector2(64, 16)));
+            Entities.Add(new Terrain(this, new Vector2(8, 96)));
+            Entities.Add(new Terrain(this, new Vector2(-8 + 96, 96)));
+            Entities.Add(new Terrain(this, new Vector2(-8 + 112, 80)));
+            Entities.Add(new Terrain(this, new Vector2(-8 + 112 + 32, 64)));
+            
+            //floor
+            //Entities.Add(new Terrain(this, new Vector2(8, 112)));
+            //Entities.Add(new Terrain(this, new Vector2(208, 112)));
+            
+            for (int i = 8; i <= 224; i += 16)
+                Entities.Add(new Terrain(this, new Vector2(i, 112)));
+            
+            player = new Player(this, new Vector2(0, 0));
             Entities.Add(player);
-            player2 = new Player(this, new Vector2(96, 32));
-            Entities.Add(player2);
+            
+            //player2 = new Player(this, new Vector2(96, 32));
+            //Entities.Add(player2);
 
             /*int numOfEntities = 1; // 64k
             Random rand = new Random();
@@ -32,7 +48,7 @@ namespace MonoGame32.GameState
             {
                 float x = rand.Next(0, 195);
                 float y = rand.Next(0, 100);
-                Entities.Add(new Player(this, new Vector2(x, y)));                
+                Entities.Add(new Player(this, new Vector2(x, y)));
             }*/
         }
 
@@ -49,6 +65,9 @@ namespace MonoGame32.GameState
 
             if (Keyboard.GetState().IsKeyDown(Keys.F))
                 GameSettings.GameSettings.SettingFullscreen = !GameSettings.GameSettings.SettingFullscreen;
+            
+            if (Keyboard.GetState().IsKeyDown(Keys.F3))
+                GameSettings.GameSettings.DrawBoundingBoxes = !GameSettings.GameSettings.DrawBoundingBoxes;
 
             player.HandleInput(dt);
         }
@@ -65,11 +84,11 @@ namespace MonoGame32.GameState
 
         public override void Tick(float dt)
         {
-            // tick
+            Console.WriteLine("NEW TICK");
+            
+            // Tick!
             foreach (var entity in Entities)
                 entity.Tick(dt);
-
-            //Console.WriteLine("X: "+ x +" Y: " + y);
         }
 
         public override void Render(float dt)

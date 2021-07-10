@@ -51,11 +51,11 @@ namespace MonoGame32
 
         protected override void Initialize()
         {
-            
             // For debugging
-            GameSettings.GameSettings.PrintRenderInformation = true;
+            GameSettings.GameSettings.PrintRenderInformation = false;
+            GameSettings.GameSettings.PrintCollisionsInformation = true;
             GameSettings.GameSettings.DrawBoundingBoxes = true;
-            
+
             // BUG: MonoGame v3.8.0 - Graphics need to be set here instead of in constructor. Will be fixed in v3.8.1.
             GameSettings.GameSettings.SettingTargetFps =
                 144; // TODO: Read all settings from file and/or change in GUI options.
@@ -105,8 +105,10 @@ namespace MonoGame32
             GameMath.GameMath.CalculateDeltaTime(gameTime);
             GameMath.GameMath.CalculateFps();
 
-            _gameStates.First().HandleInput(GameMath.GameMath.DeltaTime);
             _gameStates.First().HandleCollisions();
+            _gameStates.First().HandleInput(GameMath.GameMath.DeltaTime);
+            //_gameStates.First().HandleCollisions();
+            // Handle collisions was here before...
             _gameStates.First().Tick(GameMath.GameMath.DeltaTime);
 
             base.Update(gameTime);
@@ -131,7 +133,7 @@ namespace MonoGame32
             GraphicsDevice.Clear(Color.CornflowerBlue);
             _gameStates.First().Render(GameMath.GameMath.DeltaTime); // Render current GameState.
             _gameStates.First().RenderBoundingBoxes(); // Render bounding boxes. For debugging purpose.
-            
+
             _graphics.GraphicsDevice.SetRenderTarget(null); // Stop using Fbo.
 
             // Draw Fbo.
@@ -154,7 +156,8 @@ namespace MonoGame32
 
         private void PrintRenderInformation()
         {
-            Console.WriteLine("-Render info-\nCalls -> Drawcalls: " + GraphicsDevice.Metrics.DrawCount + " ClearCalls: " +
+            Console.WriteLine("-Render info-\nCalls -> Drawcalls: " + GraphicsDevice.Metrics.DrawCount +
+                              " ClearCalls: " +
                               GraphicsDevice.Metrics.ClearCount + "\nShader switches -> Vertex: " +
                               GraphicsDevice.Metrics.VertexShaderCount + " Fragment: " +
                               GraphicsDevice.Metrics.PixelShaderCount + "\nTexture switches: " +
@@ -185,7 +188,7 @@ namespace MonoGame32
             _timePassed += (float) gameTime.ElapsedGameTime.TotalSeconds;
 
             if (!(_timePassed >= 1.0f)) return;
-            
+
             UpdateWindowTitle();
             _timePassed -= 1.0f;
             _tickTime = 1f / _ticks;

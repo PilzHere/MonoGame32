@@ -6,7 +6,7 @@ namespace MonoGame32.GameMath
     public static class GameMath
     {
         private const double KiloByte = 1024d;
-        
+
         private static float _deltaTime;
 
         public static float DeltaTime => _deltaTime;
@@ -29,25 +29,68 @@ namespace MonoGame32.GameMath
             _fps = (1 / _deltaTime);
             _smoothedFps = (int) Math.Round(_fps);
         }
-        
+
         public static double BytesToKilobytes(int bytes)
         {
             return bytes / KiloByte;
         }
-        
+
         public static double BytesToKilobytes(long bytes)
         {
             return bytes / KiloByte;
         }
-        
+
         public static double BytesToMegabytes(int bytes)
         {
             return bytes / KiloByte / KiloByte;
         }
-        
+
         public static double BytesToMegabytes(long bytes)
         {
             return bytes / KiloByte / KiloByte;
+        }
+
+        public static Vector2 GetIntersectionDepth(BoundingBox thisBox, BoundingBox otherBox)
+        {
+            // https://stackoverflow.com/questions/46172953/aabb-collision-resolution-slipping-sides
+
+            var thisBoxWidth = thisBox.Max.X - thisBox.Min.X;
+            var thisBoxHeight = thisBox.Max.Y - thisBox.Min.Y;
+            var thisBoxMidX = thisBox.Min.X + thisBoxWidth / 2f;
+            var thisBoxMidY = thisBox.Min.Y + thisBoxHeight / 2f;
+
+            var otherBoxWidth = otherBox.Max.X - otherBox.Min.X;
+            var otherBoxHeight = otherBox.Max.Y - otherBox.Min.Y;
+            var otherBoxMidX = otherBox.Min.X + otherBoxWidth / 2f;
+            var otherBoxMidY = otherBox.Min.Y + otherBoxHeight / 2f;
+
+            // Calculate current and minimum-non-intersecting distances between centers.
+            var distanceX = thisBoxMidX - otherBoxMidX;
+            var distanceY = thisBoxMidY - otherBoxMidY;
+            var minDistanceX = thisBoxWidth / 2f + otherBoxWidth / 2f;
+            var minDistanceY = thisBoxHeight / 2f + otherBoxHeight / 2f;
+            
+            /*Console.WriteLine("COLL INFO:");
+            Console.WriteLine("thisBoxWidth: " + thisBoxWidth);
+            Console.WriteLine("thisBoxHeight: " + thisBoxHeight);
+            Console.WriteLine("thisBoxMidX: " + thisBoxMidX);
+            Console.WriteLine("thisBoxMidY: " + thisBoxMidY);
+            Console.WriteLine("otherBoxWidth: " + otherBoxWidth);
+            Console.WriteLine("otherBoxHeight: " + otherBoxHeight);
+            Console.WriteLine("otherBoxMidX: " + otherBoxMidX);
+            Console.WriteLine("otherBoxMidY: " + otherBoxMidY);*/
+
+            // If we are not intersecting at all, return 0.
+            if (Math.Abs(distanceX) >= minDistanceX || Math.Abs(distanceY) >= minDistanceY)
+            {
+                return Vector2.Zero;
+            }
+
+            // Calculate and return intersection depths.
+            var depthX = distanceX > 0 ? minDistanceX - distanceX : -minDistanceX - distanceX;
+            var depthY = distanceY > 0 ? minDistanceY - distanceY : -minDistanceY - distanceY;
+
+            return new Vector2(depthX, depthY);
         }
     }
 }
