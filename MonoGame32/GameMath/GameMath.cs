@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using MonoGame32.Component;
 
 namespace MonoGame32.GameMath
 {
@@ -50,11 +51,11 @@ namespace MonoGame32.GameMath
             return bytes / KiloByte / KiloByte;
         }
 
-        public static Vector2 GetIntersectionDepth(BoundingBox thisBox, BoundingBox otherBox)
+        public static Vector2 GetIntersectionDepth(BoxComp thisBox, BoxComp otherBox)
         {
             // https://stackoverflow.com/questions/46172953/aabb-collision-resolution-slipping-sides
 
-            var thisBoxWidth = thisBox.Max.X - thisBox.Min.X;
+            /*var thisBoxWidth = thisBox.Max.X - thisBox.Min.X;
             var thisBoxHeight = thisBox.Max.Y - thisBox.Min.Y;
             var thisBoxMidX = thisBox.Min.X + thisBoxWidth / 2f;
             var thisBoxMidY = thisBox.Min.Y + thisBoxHeight / 2f;
@@ -62,13 +63,18 @@ namespace MonoGame32.GameMath
             var otherBoxWidth = otherBox.Max.X - otherBox.Min.X;
             var otherBoxHeight = otherBox.Max.Y - otherBox.Min.Y;
             var otherBoxMidX = otherBox.Min.X + otherBoxWidth / 2f;
-            var otherBoxMidY = otherBox.Min.Y + otherBoxHeight / 2f;
+            var otherBoxMidY = otherBox.Min.Y + otherBoxHeight / 2f;*/
 
             // Calculate current and minimum-non-intersecting distances between centers.
-            var distanceX = thisBoxMidX - otherBoxMidX;
+            var distanceX = thisBox.BoxMidX - otherBox.BoxMidX;
+            var distanceY = thisBox.BoxMidY - otherBox.BoxMidY;
+            var minDistanceX = thisBox.BoxWidth / 2f + otherBox.BoxWidth / 2f;
+            var minDistanceY = thisBox.BoxHeight / 2f + otherBox.BoxHeight / 2f;
+            
+            /*var distanceX = thisBoxMidX - otherBoxMidX;
             var distanceY = thisBoxMidY - otherBoxMidY;
             var minDistanceX = thisBoxWidth / 2f + otherBoxWidth / 2f;
-            var minDistanceY = thisBoxHeight / 2f + otherBoxHeight / 2f;
+            var minDistanceY = thisBoxHeight / 2f + otherBoxHeight / 2f;*/
             
             /*Console.WriteLine("COLL INFO:");
             Console.WriteLine("thisBoxWidth: " + thisBoxWidth);

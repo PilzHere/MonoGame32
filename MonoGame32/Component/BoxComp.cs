@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace MonoGame32.Component
@@ -7,6 +9,11 @@ namespace MonoGame32.Component
         private BoundingBox _box;
         private float _boxWidth, _boxHeight, _boxMidX, _boxMidY;
         private short _categoryBits, _maskBits;
+
+        public List<BoxComp> overlapingBoxes = new List<BoxComp>();
+        
+        public Vector2 intersection;// = GameMath.GameMath.GetIntersectionDepth(thisBox, boxA);
+        public float intersectionArea;// = Math.Abs(intersectionA.X * intersectionA.Y);
 
         public BoxComp(Vector3 min, Vector3 max, short categoryBits, short maskBits)
         {
@@ -36,20 +43,31 @@ namespace MonoGame32.Component
             return _box;
         }
 
-        public float BoxWidth
+        public Vector3 GetBoxMin()
         {
-            get => _boxWidth = _box.Max.X - _box.Min.X;
+            return _box.Min;
         }
 
-        public float BoxHeight
+        public void SetBoxMin(Vector3 newMin)
         {
-            get => _boxHeight = _box.Max.Y - _box.Min.Y;
+            _box.Min = newMin;
+        }
+        
+        public Vector3 GetBoxMax()
+        {
+            return _box.Max;
         }
 
-        public float BoxMidX
+        public void SetBoxMax(Vector3 newMax)
         {
-            get => _boxMidX = _box.Min.X + _boxWidth / 2f;
+            _box.Max = newMax;
         }
+
+        public float BoxWidth => _boxWidth;
+
+        public float BoxHeight => _boxHeight;
+
+        public float BoxMidX => _boxMidX = _box.Min.X + _boxWidth / 2f;
 
         public float BoxMidY
         {

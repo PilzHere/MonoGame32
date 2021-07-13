@@ -24,9 +24,7 @@ namespace MonoGame32.Entity
         private Sprite _sprite;
         
         // Boxes
-        private BoundingBox _box;
-        private short _boxCategoryBits, _boxCategoryMask;
-        private float _boxWidth, _boxHeight;
+        private BoxComp _box;
         
         public Terrain(GameState.GameState gameState, Vector2 position) : base(gameState)
         {
@@ -41,12 +39,10 @@ namespace MonoGame32.Entity
             _currentRect = _rects[0];
 
             // Boxes
-            _boxWidth = 16;
-            _boxHeight = 16;
-            _boxCategoryBits = CollisionSetup.TerrainBit;
-            _boxCategoryMask = CollisionSetup.TerrainMask;
-            _box = new BoundingBox(new Vector3(_position.X - _boxWidth / 2f, _position.Y - _boxHeight / 2f, 0),
-                new Vector3(_position.X + _boxWidth / 2f, _position.Y + _boxHeight / 2f, 0));
+            float _boxWidth = 16;
+            float _boxHeight = 16;
+            _box = new BoxComp(new Vector3(_position.X - _boxWidth / 2f, _position.Y - _boxHeight / 2f, 0),
+                new Vector3(_position.X + _boxWidth / 2f, _position.Y + _boxHeight / 2f, 0), CollisionSetup.TerrainBit, CollisionSetup.TerrainMask);
 
             // Sprites
             var spritePosition = new Vector2(_position.X - _boxWidth / 2f, _position.Y - _boxHeight / 2f);
@@ -73,51 +69,14 @@ namespace MonoGame32.Entity
             //throw new System.NotImplementedException();
         }
 
-        public BoundingBox GetBoundingBox()
+        public BoxComp GetBoxComp()
         {
             return _box;
         }
 
-        public short GetCategoryBits()
-        {
-            return _boxCategoryBits;
-        }
-
-        public void SetCategoryBits(short bits)
-        {
-            _boxCategoryBits = bits;
-        }
-
-        public short GetMaskBits()
-        {
-            return _boxCategoryMask;
-        }
-
-        public void SetMaskBits(short bits)
-        {
-            _boxCategoryMask = bits;
-        }
-
-        public void OnCollision(Entity otherEntity, IBoxComponent otherBoxComp)
+        public void OnCollision(Entity otherEntity, BoxComp otherBoxComp)
         {
             
-        }
-
-        public List<BoundingBox> GetIntersectingBoxes()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool OnCollisionX(Entity otherEntity, IBoxComponent otherBoxComp)
-        {
-            //throw new System.NotImplementedException();
-            return false;
-        }
-
-        public bool OnCollisionY(Entity otherEntity, IBoxComponent otherBoxComp)
-        {
-            //throw new System.NotImplementedException();
-            return false;
         }
     }
 }

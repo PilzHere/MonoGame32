@@ -22,8 +22,6 @@ namespace MonoGame32.Collision
         {
             _entities = entities;
         }
-
-        //private static BoundingBox currentBoundingBox;
         
         public static void CheckCollision(Entity.Entity thisEntity, IBoxComponent thisBoxComp)
         {
@@ -32,36 +30,87 @@ namespace MonoGame32.Collision
             foreach (var entity in _entities)
             {
                 if (!(entity is IBoxComponent otherBoxComp)) continue; // No box? NEXT!
-                if (otherBoxComp.GetBoundingBox() == thisBoxComp.GetBoundingBox()) continue; // Not the same box.
-                if ((otherBoxComp.GetMaskBits() & thisBoxComp.GetCategoryBits()) !=
-                    thisBoxComp.GetCategoryBits()) continue; // Categorybits exist in maskbits?
-                if (thisBoxComp.GetBoundingBox().Intersects(otherBoxComp.GetBoundingBox())) // Intersection?
+                if (otherBoxComp.GetBoxComp().GetBox() == thisBoxComp.GetBoxComp().GetBox()) continue; // Not the same box.
+                if ((otherBoxComp.GetBoxComp().MaskBits & thisBoxComp.GetBoxComp().CategoryBits) !=
+                    thisBoxComp.GetBoxComp().CategoryBits) continue; // Categorybits exist in maskbits?
+                if (thisBoxComp.GetBoxComp().GetBox().Intersects(otherBoxComp.GetBoxComp().GetBox())) // Intersection?
                 {
                     if (GameSettings.GameSettings.PrintCollisionsInformation)
-                        Console.WriteLine(thisBoxComp.GetCategoryBits() + " collides with: " + otherBoxComp.GetCategoryBits());
+                        //Console.WriteLine(thisBoxComp.GetBoxComp().CategoryBits + " collides with: " + otherBoxComp.GetBoxComp().CategoryBits);
                         //Console.WriteLine(thisEntity.Id + " collides with: " + entity.Id);
 
-                        thisBoxComp.OnCollision(entity, otherBoxComp); // Entity act on collision.    
+                        otherBoxComp.GetBoxComp().intersection = GameMath.GameMath.GetIntersectionDepth(thisBoxComp.GetBoxComp(), otherBoxComp.GetBoxComp());
+                        otherBoxComp.GetBoxComp().intersectionArea =
+                            Math.Abs(otherBoxComp.GetBoxComp().intersection.X * otherBoxComp.GetBoxComp().intersection.Y);
+                        thisBoxComp.GetBoxComp().overlapingBoxes.Add(otherBoxComp.GetBoxComp());
+                        //thisBoxComp.OnCollision(entity, otherBoxComp); // Entity act on collision.
                 }
                 
                 //thisBoxComp.OnCollision(entity, otherBoxComp); // Entity act on collision.
             }
+
+            /*foreach (var entity in _entities)
+            {
+                if (!(entity is IBoxComponent otherBoxComp)) continue; // No box? NEXT!
+                if (thisBoxComp.GetBoxComp().overlapingBoxes.Count == 0) continue;
+                foreach (var otherBoxComp2 in thisBoxComp.GetBoxComp().overlapingBoxes)
+                {
+                    otherBoxComp2.intersection = GameMath.GameMath.GetIntersectionDepth(thisBoxComp.GetBoxComp(), otherBoxComp2);
+                    otherBoxComp2.intersectionArea =
+                        Math.Abs(otherBoxComp2.intersection.X * otherBoxComp2.intersection.Y);
+                }
+            }*/
+
+            //Console.WriteLine("BEFORE");
+            //thisBoxComp.GetBoxComp().overlapingBoxes.ForEach(comp => Console.WriteLine("intersection: " + comp.intersectionArea));
+            //thisBoxComp.GetBoxComp().overlapingBoxes.Sort(new AComparer());
+            //Console.WriteLine(string.Join(Environment.NewLine, thisBoxComp.GetBoxComp().overlapingBoxes));
+            
+            //Console.WriteLine("AFTER");
+            thisBoxComp.GetBoxComp().overlapingBoxes.Sort((box1, box2) =>
+                box2.intersectionArea.CompareTo(box1.intersectionArea));
+            
+            //Console.WriteLine("AFTER");
+            //thisBoxComp.GetBoxComp().overlapingBoxes.ForEach(comp => Console.WriteLine("intersection: " + comp.intersectionArea));
+            
+            //Console.WriteLine(string.Join(Environment.NewLine, thisBoxComp.GetBoxComp().overlapingBoxes));
+            
+            //thisBoxComp.GetBoxComp().overlapingBoxes.OrderBy(comp => comp, new AComparer());
+            //Array.Sort(thisBoxComp.GetBoxComp().overlapingBoxes, new AComparer());
+            //thisBoxComp.GetBoxComp().overlapingBoxes.OrderBy(comp => comp, new AComparer());
+            //Console.WriteLine("Count: " + thisBoxComp.GetBoxComp().overlapingBoxes.Count);
+            
+            foreach (var boxComp in thisBoxComp.GetBoxComp().overlapingBoxes)
+            {
+                //Console.WriteLine("Area: " + boxComp.intersectionArea);
+                thisBoxComp.OnCollision(null, boxComp); // Entity act on collision.
+            }
+
+            //if (thisBoxComp.GetBoxComp().overlapingBoxes.Count != 0)
+                //thisBoxComp.OnCollision(null, thisBoxComp.GetBoxComp().overlapingBoxes[0]);
+            
+            thisBoxComp.GetBoxComp().overlapingBoxes.Clear();
         }
     }
     
-    /*class AComparer : IComparer<BoundingBox>
+    public class AComparer : IComparer<BoxComp>
     {
-        public int Compare(BoundingBox thisBox, BoundingBox boxA, BoundingBox boxB)
+        public int Compare(BoxComp boxA, BoxComp boxB)
         {
-            var intersectionA = GameMath.GameMath.GetIntersectionDepth(thisBox, boxA);
+            /*var intersectionA = GameMath.GameMath.GetIntersectionDepth(thisBox, boxA);
             var intersectionVolumeA = Math.Abs(intersectionA.X * intersectionA.Y);
             
             var intersectionB = GameMath.GameMath.GetIntersectionDepth(thisBox, boxB);
-            var intersectionVolumeB = Math.Abs(intersectionB.X * intersectionB.Y);
+            var intersectionVolumeB = Math.Abs(intersectionB.X * intersectionB.Y);*/
 
-            if (intersectionVolumeA < intersectionVolumeB) return -1;
-            if (intersectionVolumeA > intersectionVolumeB) return 1;
-            return 0;
+            //Console.WriteLine("BoxA: " + boxA.intersectionArea + " BoxB: " + boxB.intersectionArea);
+
+            return boxB.intersectionArea.CompareTo(boxA.intersectionArea);
+            
+            //if (boxA.intersectionArea > boxB.intersectionArea) return -1;
+            //return 1;
+            //if (boxA.intersectionArea > boxB.intersectionArea) return 1;
+            //return 0;
         }
-    }*/
+    }
 }

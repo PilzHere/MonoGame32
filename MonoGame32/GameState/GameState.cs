@@ -44,42 +44,67 @@ namespace MonoGame32.GameState
             if (Entities.Count == 0) return;
 
             var basicEffect = new BasicEffect(Game.GraphicsDevice);
+            basicEffect.LightingEnabled = false;
+            basicEffect.VertexColorEnabled = true;
             basicEffect.World = Matrix.CreateOrthographicOffCenter(
                 0, Game.GraphicsDevice.Viewport.Width, Game.GraphicsDevice.Viewport.Height, 0, 0, 1);
+            
 
             var effectTechnique = basicEffect.Techniques[0];
             var effectPassCollection = effectTechnique.Passes;
 
             foreach (var entity in Entities)
+            {
                 if (entity is IBoxComponent boxComponent)
                 {
-                    var currentBox = boxComponent.GetBoundingBox();
+                    Color color;
+                    switch (boxComponent.GetBoxComp().CategoryBits)
+                    {
+                        case CollisionSetup.TerrainBit:
+                            color = Color.White;
+                            break;
+                        case CollisionSetup.PlayerBit:
+                            color = Color.Lime;
+                            break;
+                        default:
+                            color = Color.Gray;
+                            break;
+                    }
+
+                    var currentBox = boxComponent.GetBoxComp().GetBox();
                     var vertexPositionColors = new[]
                     {
                         new VertexPositionColor(
                             new Vector3(currentBox.GetCorners()[3].X, currentBox.GetCorners()[3].Y, 0),
-                            Color.White),
+                            color),
                         new VertexPositionColor(
                             new Vector3(currentBox.GetCorners()[0].X, currentBox.GetCorners()[0].Y, 0),
-                            Color.White),
+                            color),
                         new VertexPositionColor(
                             new Vector3(currentBox.GetCorners()[1].X, currentBox.GetCorners()[1].Y, 0),
-                            Color.White),
+                            color),
                         new VertexPositionColor(
                             new Vector3(currentBox.GetCorners()[2].X, currentBox.GetCorners()[2].Y, 0),
-                            Color.White),
+                            color),
                         new VertexPositionColor(
                             new Vector3(currentBox.GetCorners()[3].X, currentBox.GetCorners()[3].Y, 0),
-                            Color.White),
+                            color)
                     };
 
-                    foreach (var pass in effectPassCollection)
+                    // OLD CODE!
+                    /*foreach (var pass in effectPassCollection)
                     {
                         pass.Apply();
                         Game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineStrip, vertexPositionColors,
                             0, 4);
-                    }
+                    }*/
+                    
+                    // New code.
+                    basicEffect.CurrentTechnique.Passes[0].Apply();
+                    Game.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineStrip, vertexPositionColors,
+                        0, 4);
                 }
+            }
         }
 
         public virtual void ExitState()

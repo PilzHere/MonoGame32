@@ -53,7 +53,7 @@ namespace MonoGame32
         {
             // For debugging
             GameSettings.GameSettings.PrintRenderInformation = false;
-            GameSettings.GameSettings.PrintCollisionsInformation = true;
+            GameSettings.GameSettings.PrintCollisionsInformation = false;
             GameSettings.GameSettings.DrawBoundingBoxes = true;
 
             // BUG: MonoGame v3.8.0 - Graphics need to be set here instead of in constructor. Will be fixed in v3.8.1.
@@ -61,9 +61,9 @@ namespace MonoGame32
                 144; // TODO: Read all settings from file and/or change in GUI options.
             GameSettings.GameSettings.SettingFullscreen = false;
             GameSettings.GameSettings.SettingHardwareModeSwitch = false;
-            GameSettings.GameSettings.WindowWidth = 854;
-            GameSettings.GameSettings.WindowHeight = 480;
-            GameSettings.GameSettings.RenderScale = 1;
+            GameSettings.GameSettings.RenderScale = 2;
+            GameSettings.GameSettings.WindowWidth = 426 * GameSettings.GameSettings.RenderScale; // 854
+            GameSettings.GameSettings.WindowHeight = 240 * GameSettings.GameSettings.RenderScale; // 480
             GameSettings.GameSettings.SettingMsaa = false;
             GameSettings.GameSettings.SettingUseVSync = false; // if true set CapFpsToMaxFps to false.
             GameSettings.GameSettings.SettingCapFpsToTargetFps = true; // BUG: Doesnt tell correct fps if true(?).
@@ -85,8 +85,8 @@ namespace MonoGame32
             _assetsManager.LoadAllAssets();
 
             _fbo = new RenderTarget2D(_graphics.GraphicsDevice,
-                GameSettings.GameSettings.WindowWidth / GameSettings.GameSettings.RenderScale,
-                GameSettings.GameSettings.WindowHeight / GameSettings.GameSettings.RenderScale, false,
+                GameSettings.GameSettings.WindowWidth,
+                GameSettings.GameSettings.WindowHeight, false,
                 SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
             _fboTexture = _fbo;
 
@@ -140,8 +140,8 @@ namespace MonoGame32
             _fboTexture = _fbo;
             _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
             _spriteBatch.Draw(_fboTexture, Vector2.Zero, null, Color.White, 0.0f, Vector2.Zero,
-                new Vector2((float) _graphics.PreferredBackBufferWidth / _fboTexture.Width * 4,
-                    (float) _graphics.PreferredBackBufferHeight / _fboTexture.Height * 4),
+                new Vector2((float) _graphics.PreferredBackBufferWidth / _fboTexture.Width * GameSettings.GameSettings.RenderScale,
+                    (float) _graphics.PreferredBackBufferHeight / _fboTexture.Height * GameSettings.GameSettings.RenderScale),
                 SpriteEffects.None, 0.0f);
             _spriteBatch.End();
 

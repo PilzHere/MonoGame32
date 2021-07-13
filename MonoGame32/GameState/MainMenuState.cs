@@ -28,15 +28,20 @@ namespace MonoGame32.GameState
             Entities.Add(new Terrain(this, new Vector2(-8 + 96, 96)));
             Entities.Add(new Terrain(this, new Vector2(-8 + 112, 80)));
             Entities.Add(new Terrain(this, new Vector2(-8 + 112 + 32, 64)));
+            Entities.Add(new Terrain(this, new Vector2(96, 0)));
             
             //floor
             //Entities.Add(new Terrain(this, new Vector2(8, 112)));
             //Entities.Add(new Terrain(this, new Vector2(208, 112)));
             
-            for (int i = 8; i <= 224; i += 16)
-                Entities.Add(new Terrain(this, new Vector2(i, 112)));
+            for (int i = 8; i <= 224 * 2; i += 16)
+                Entities.Add(new Terrain(this, new Vector2(i, 224+8)));
             
-            player = new Player(this, new Vector2(0, 0));
+            // roof
+            for (int i = 8; i <= 224 * 2; i += 16)
+                Entities.Add(new Terrain(this, new Vector2(i, 8)));
+            
+            player = new Player(this, new Vector2(0, 200));
             Entities.Add(player);
             
             //player2 = new Player(this, new Vector2(96, 32));

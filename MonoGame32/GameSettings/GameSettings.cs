@@ -62,7 +62,7 @@ namespace MonoGame32.GameSettings
             }
         }
 
-        private static int _windowWidth = 854, _windowHeight = 480; // Default values.
+        private static int _windowWidth = 426, _windowHeight = 240; // Default values.
 
         public static int WindowWidth
         {
@@ -103,7 +103,7 @@ namespace MonoGame32.GameSettings
         }
 
         // X screen pixels per fbo pixel.
-        private static int _renderScale = 4; // 4 Default value.
+        private static int _renderScale = 1; // 4 Default value.
 
         public static int RenderScale
         {
