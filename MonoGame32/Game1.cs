@@ -58,15 +58,15 @@ namespace MonoGame32
 
             // BUG: MonoGame v3.8.0 - Graphics need to be set here instead of in constructor. Will be fixed in v3.8.1.
             GameSettings.GameSettings.SettingTargetFps =
-                144; // TODO: Read all settings from file and/or change in GUI options.
+                60; // TODO: Read all settings from file and/or change in GUI options.
             GameSettings.GameSettings.SettingFullscreen = false;
             GameSettings.GameSettings.SettingHardwareModeSwitch = false;
             GameSettings.GameSettings.RenderScale = 2;
             GameSettings.GameSettings.WindowWidth = 426 * GameSettings.GameSettings.RenderScale; // 854
             GameSettings.GameSettings.WindowHeight = 240 * GameSettings.GameSettings.RenderScale; // 480
             GameSettings.GameSettings.SettingMsaa = false;
-            GameSettings.GameSettings.SettingUseVSync = false; // if true set CapFpsToMaxFps to false.
-            GameSettings.GameSettings.SettingCapFpsToTargetFps = true; // BUG: Doesnt tell correct fps if true(?).
+            GameSettings.GameSettings.SettingUseVSync = true; // if true set CapFpsToMaxFps to false.
+            GameSettings.GameSettings.SettingCapFpsToTargetFps = false; // BUG: Doesnt tell correct fps if true(?).
             GameSettings.GameSettings.TimeBetweenFramesWhenCappedToMaxFps =
                 TimeSpan.FromSeconds(1d / GameSettings.GameSettings.SettingTargetFps);
 
@@ -100,10 +100,11 @@ namespace MonoGame32
 
         protected override void Update(GameTime gameTime)
         {
-            SystemAnalyzer.UpdateMemoryUsage();
 
             GameMath.GameMath.CalculateDeltaTime(gameTime);
             GameMath.GameMath.CalculateFps();
+            
+            SystemAnalyzer.UpdateMemoryUsage(GameMath.GameMath.DeltaTime);
 
             _gameStates.First().HandleCollisions();
             _gameStates.First().HandleInput(GameMath.GameMath.DeltaTime);
@@ -169,14 +170,14 @@ namespace MonoGame32
 
         private void UpdateWindowTitle()
         {
-            Window.Title = "MonoGame32 | " + /*GameMath.GameMath.SmoothedFps*/ _frames + " FPS / " +
+            Window.Title = "MonoGame32 [" + /*GameMath.GameMath.SmoothedFps*/ Window.ClientBounds.Width + "x" + Window.ClientBounds.Height + "] [" + _frames + " FPS " +
                            _frameTime.ToString("F7") +
-                           " ms | " + _ticks +
-                           " UPS / " + _tickTime.ToString("F7") + " ms | DT: " +
+                           " ms] [" + _ticks +
+                           " UPS " + _tickTime.ToString("F7") + " ms] [DT " +
                            GameMath.GameMath.DeltaTime +
-                           " ms | " + SystemAnalyzer.ProcessMemoryUsed + " / " +
-                           SystemAnalyzer.ProcessMemoryAllocated +
-                           " MiB";
+                           " ms] [" + SystemAnalyzer.ProcessMemoryInGarbageCollector + "/" +
+                           SystemAnalyzer.ProcessMemoryInUseMax +
+                           " MiB " + SystemAnalyzer.ProcessMemoryUsedPercent.ToString("F0") + "%]";
         }
 
         private float _timePassed;

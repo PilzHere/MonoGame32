@@ -17,12 +17,15 @@ namespace MonoGame32.PlatformSystem
         private static Version _dotNetVersion;
         //private static PlatformID _platformId;
 
-        private static double _processMemoryAllocated;
-        private static double _processMemoryUsed;
+        private static double _processMemoryInGarbageCollector;
+        private static double _processMemoryInUseMax;
+        private static double _processMemoryUsedPercent;
 
-        public static double ProcessMemoryAllocated => _processMemoryAllocated;
+        public static double ProcessMemoryUsedPercent => _processMemoryUsedPercent;
 
-        public static double ProcessMemoryUsed => _processMemoryUsed;
+        public static double ProcessMemoryInUseMax => _processMemoryInUseMax;
+
+        public static double ProcessMemoryInGarbageCollector => _processMemoryInGarbageCollector;
 
         /// <summary>
         /// Should be called AFTER game has initialized.
@@ -70,10 +73,13 @@ namespace MonoGame32.PlatformSystem
             }*/
         }
 
+        private static float _newUpdateTime = 0;
+        private static float _newUpdateTimeCounter = 0;
+        
         /// <summary>
         /// TODO: Not sure if this is correct...
         /// </summary>
-        public static void UpdateMemoryUsage()
+        public static void UpdateMemoryUsage(float dt)
         {
             //Console.WriteLine("WorkingSet: " + Math.Floor(GameMath.GameMath.BytesToMegabytes(Environment.WorkingSet)) + " MiB");
             //Console.WriteLine(GameMath.GameMath.BytesToMegabytes(Process.GetCurrentProcess().PrivateMemorySize64) + " MiB");
@@ -84,8 +90,28 @@ namespace MonoGame32.PlatformSystem
                               " MiB"); // seems nice
             */
 
+            _newUpdateTimeCounter += dt;
+
+            if (_newUpdateTimeCounter >= _newUpdateTime)
+            {
+                Process proc = Process.GetCurrentProcess();
+                _processMemoryInUseMax = Math.Floor(GameMath.GameMath.BytesToMegabytes(proc.PrivateMemorySize64));
+                proc.Dispose();
+
+                _processMemoryInGarbageCollector = Math.Floor(GameMath.GameMath.BytesToMegabytes(GC.GetTotalMemory(false)));
+                _newUpdateTime += 1; // Add one second.
+                //Console.WriteLine("NEW TIME RAM MEMORY");
+
+                _processMemoryUsedPercent = (_processMemoryInGarbageCollector / _processMemoryInUseMax ) * 100;
+            }
+            
+            /*_processMemoryUsed2 = 0;
+            Process proc = Process.GetCurrentProcess();
+            _processMemoryUsed2 = proc.PrivateMemorySize64 / (1024*1024);
+            proc.Dispose();
+
             _processMemoryUsed = Math.Floor(GameMath.GameMath.BytesToMegabytes(GC.GetTotalMemory(false)));
-            _processMemoryAllocated = Math.Floor(GameMath.GameMath.BytesToMegabytes(Environment.WorkingSet));
+            _processMemoryAllocated = Math.Floor(GameMath.GameMath.BytesToMegabytes(Environment.WorkingSet)); // old*/
 
 
             //Console.WriteLine("frags: " + GameMath.GameMath.BytesToMegabytes(GC.GetGCMemoryInfo().FragmentedBytes));
