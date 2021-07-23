@@ -1,15 +1,32 @@
 using System;
 using System.ComponentModel.Design;
 using Microsoft.Xna.Framework.Input;
+using KeyState = MonoGame32.Input.InputKeys.KeyState;
 
 namespace MonoGame32.Input
 {
     public static class InputProcessor
     {
         private static Keys _keyExit;
+        private static KeyState _keyExitState;
+        
+        private static Keys _keyFullscreen;
+        private static KeyState _keyFullscreenState;
+        
+        private static Keys _keyRenderBoundingBoxes;
+        private static KeyState _keyRenderBoundingBoxesState;
 
-        private static bool keyExitIsDown;
-        public static bool KeyExitIsDown => keyExitIsDown;
+        public static KeyState KeyRenderBoundingBoxesState => _keyRenderBoundingBoxesState;
+
+        public static KeyState KeyFullscreenState => _keyFullscreenState;
+
+        public static KeyState KeyExitState => _keyExitState;
+
+        /*private static bool keyExitIsDown;
+        private static bool keyExitWasDownLastFrame;
+        private static bool keyExitIsUp;
+        private static bool keyExitWasUpLastFrame;*/
+        //public static bool KeyExitIsDown => keyExitIsDown;
 
         private static Keys _KeyMoveUp;
 
@@ -46,6 +63,8 @@ namespace MonoGame32.Input
         {
             // Default key setup.
             _keyExit = Keys.Escape;
+            _keyFullscreen = Keys.F;
+            _keyRenderBoundingBoxes = Keys.F3;
 
             _KeyMoveUp = Keys.W;
             _KeyMoveDown = Keys.S;
@@ -57,7 +76,15 @@ namespace MonoGame32.Input
 
         public static void ReadInput()
         {
-            keyExitIsDown = Keyboard.GetState().IsKeyDown(_keyExit);
+            //keyExitIsDown = Keyboard.GetState().IsKeyDown(_keyExit); // OLD
+            _keyExitState = UpdateKey(_keyExitState, Keyboard.GetState().IsKeyUp(_keyExit),
+                Keyboard.GetState().IsKeyDown(_keyExit));
+            _keyFullscreenState = UpdateKey(_keyFullscreenState, Keyboard.GetState().IsKeyUp(_keyFullscreen),
+                Keyboard.GetState().IsKeyDown(_keyFullscreen));
+            _keyRenderBoundingBoxesState = UpdateKey(_keyRenderBoundingBoxesState, Keyboard.GetState().IsKeyUp(_keyRenderBoundingBoxes),
+                Keyboard.GetState().IsKeyDown(_keyRenderBoundingBoxes));
+            
+            // TODO: Update rest of keys like the ones above?
             keyMoveUpIsDown = Keyboard.GetState().IsKeyDown(_KeyMoveUp);
             keyMoveDownIsDown = Keyboard.GetState().IsKeyDown(_KeyMoveDown);
             keyMoveLeftIsDown = Keyboard.GetState().IsKeyDown(_KeyMoveLeft);
@@ -90,6 +117,33 @@ namespace MonoGame32.Input
                     keyJumpWasUpLastFrame = false;
                 }
             }
+        }
+
+        private static KeyState UpdateKey(KeyState keyState, bool keyIsUp, bool keyIsDown)
+        {
+            if (keyIsUp) // No press
+            {
+                keyState = KeyState.Up;
+                return keyState;
+            }
+
+            if (keyIsDown) // Pressed down
+            {
+                if (keyState == KeyState.DownOneFrame) // Key got pressed last frame
+                {
+                    keyState = KeyState.Down;
+                    return keyState;
+                }
+
+                if (keyState == KeyState.Up) // Key was up last frame
+                {
+                    keyState = KeyState.DownOneFrame;
+                    return keyState;
+                }
+            }
+            
+            // If this line is reached, keyState is Down.
+            return keyState;
         }
     }
 }

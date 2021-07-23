@@ -12,16 +12,19 @@ namespace MonoGame32
 {
     /**
      * FAQ
-     *  1.  Q: Linux - Can't see packed files from MGCB Editor in Content folder,
+     *  1.  Q: Trello?
+     *      A: https://trello.com/b/c25icOp4/monogame32
+     * 
+     *  2.  Q: Linux - Can't see packed files from MGCB Editor in Content folder,
      *          only original file (I only see filename.png and not filename.xnb):
      *      A: The file is in Content/bin/... Rider show's as same folder in Windows,
      *          but it has same location as in Linux.
      *
-     *  2.  Q: Linux - Can't open Monogame-pipeline-tool...
+     *  3.  Q: Linux - Can't open Monogame-pipeline-tool...
      *      A: BUG: There is a bug in the current pipeline-tool related to
      *          system-installed GTK and the GTK version in the program.
      *          It is fixed and will be released in release of MonoGame.
-     *  3.  Q:
+     *  4.  Q:
      * 
     */
     public class Game1 : Game
@@ -56,17 +59,17 @@ namespace MonoGame32
             GameSettings.GameSettings.PrintCollisionsInformation = false;
             GameSettings.GameSettings.DrawBoundingBoxes = true;
 
-            // BUG: MonoGame v3.8.0 - Graphics need to be set here instead of in constructor. Will be fixed in v3.8.1.
-            GameSettings.GameSettings.SettingTargetFps =
-                60; // TODO: Read all settings from file and/or change in GUI options.
+            // BUG: MonoGame v3.8.0 - Graphics need to be set here instead of in constructor. Will be fixed in v3.8.1. https://community.monogame.net/t/3-8-release-cant-change-window-size/13327/5
+            // TODO: Read all settings from file and/or change in GUI options.
+            GameSettings.GameSettings.SettingTargetFps = 144;
             GameSettings.GameSettings.SettingFullscreen = false;
             GameSettings.GameSettings.SettingHardwareModeSwitch = false;
             GameSettings.GameSettings.RenderScale = 2;
             GameSettings.GameSettings.WindowWidth = 426 * GameSettings.GameSettings.RenderScale; // 854
             GameSettings.GameSettings.WindowHeight = 240 * GameSettings.GameSettings.RenderScale; // 480
             GameSettings.GameSettings.SettingMsaa = false;
-            GameSettings.GameSettings.SettingUseVSync = true; // if true set CapFpsToMaxFps to false.
-            GameSettings.GameSettings.SettingCapFpsToTargetFps = false; // BUG: Doesnt tell correct fps if true(?).
+            GameSettings.GameSettings.SettingUseVSync = false;
+            GameSettings.GameSettings.SettingSyncUpsWithFps = true; // Using Vsync? You probably want this set to true.
             GameSettings.GameSettings.TimeBetweenFramesWhenCappedToMaxFps =
                 TimeSpan.FromSeconds(1d / GameSettings.GameSettings.SettingTargetFps);
 
@@ -100,10 +103,9 @@ namespace MonoGame32
 
         protected override void Update(GameTime gameTime)
         {
-
             GameMath.GameMath.CalculateDeltaTime(gameTime);
             GameMath.GameMath.CalculateFps();
-            
+
             SystemAnalyzer.UpdateMemoryUsage(GameMath.GameMath.DeltaTime);
 
             _gameStates.First().HandleCollisions();
@@ -141,8 +143,11 @@ namespace MonoGame32
             _fboTexture = _fbo;
             _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
             _spriteBatch.Draw(_fboTexture, Vector2.Zero, null, Color.White, 0.0f, Vector2.Zero,
-                new Vector2((float) _graphics.PreferredBackBufferWidth / _fboTexture.Width * GameSettings.GameSettings.RenderScale,
-                    (float) _graphics.PreferredBackBufferHeight / _fboTexture.Height * GameSettings.GameSettings.RenderScale),
+                new Vector2(
+                    (float) _graphics.PreferredBackBufferWidth / _fboTexture.Width *
+                    GameSettings.GameSettings.RenderScale,
+                    (float) _graphics.PreferredBackBufferHeight / _fboTexture.Height *
+                    GameSettings.GameSettings.RenderScale),
                 SpriteEffects.None, 0.0f);
             _spriteBatch.End();
 
@@ -170,7 +175,8 @@ namespace MonoGame32
 
         private void UpdateWindowTitle()
         {
-            Window.Title = "MonoGame32 [" + /*GameMath.GameMath.SmoothedFps*/ Window.ClientBounds.Width + "x" + Window.ClientBounds.Height + "] [" + _frames + " FPS " +
+            Window.Title = "MonoGame32 [" + /*GameMath.GameMath.SmoothedFps*/ Window.ClientBounds.Width + "x" +
+                           Window.ClientBounds.Height + "] [" + _frames + " FPS " +
                            _frameTime.ToString("F7") +
                            " ms] [" + _ticks +
                            " UPS " + _tickTime.ToString("F7") + " ms] [DT " +

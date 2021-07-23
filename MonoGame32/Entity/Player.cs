@@ -68,23 +68,23 @@ namespace MonoGame32.Entity
         private float _currentMaxVelocityY, _currentForceY, _currentBrakeY;
 
         // Force - The force to move with, increments.
-        // ForceMax - The maximum amount of force.
+        // ForceMax - The maximum amount of force ^.
         // Brake - The force to stop player from keep moving. No input X: Brake.
-        // MaxVelocity - The maximum speed obtained with force.
-        
-        private const float WalkMaxVelocityX = 0.35f, WalkForceX = 10f, WalkBrakeX = 7.5f;
-        private const float MinVelocityX = 0.05f; // WalkForceX  was 5.
+        // MaxVelocity - The maximum speed obtained with force. Pixels per second to move.
+
+        private const float WalkMaxVelocityX = 64, WalkForceX = 133, WalkForceMaxX = 64, WalkBrakeX = 266;
+        private const float MinVelocityX = 2f; // 0.0003f
         private const float GroundedMaxVelocityY = 0f;
         private const float InAirMaxVelocityY = GravityY;
 
         //private const float WalkMaxVelocityY = 0.5f, WalkSpeedY = 5f, WalkResistanceY = 2.75f;
-        private const float JumpMaxVelocityY = 10.5f, JumpForceY = 100f, JumpBrakeY = 5f;
-        private const float MinVelocityY = 0.1f;
+        private const float JumpMaxVelocityY = 64, JumpForceY = 133, JumpBrakeY = 266;
+        private const float MinVelocityY = 2;
 
-        private const float GravityY = (float) Math.PI * 2f; // (float) Math.PI * 3f;
-        private const float AirResistanceY = 1f;
-        private const float AirForceY = 100f;
-        private const float GroundedResistanceY = 0f;
+        private const float GravityY = (float) Math.PI * 24; // (float) Math.PI * 3f;
+        private const float AirResistanceY = 266f;
+        private const float AirForceY = 133f;
+        private const float GroundedBrakeY = 0f;
 
         private bool _isGrounded; // Detected in collision before Tick().
         private bool _isJumping;
@@ -94,6 +94,8 @@ namespace MonoGame32.Entity
 
         public void HandleInput(float dt)
         {
+            // TODO: Rework player movement.
+
             _isJumping = false;
 
             //_velocity = Vector2.Zero;
@@ -123,75 +125,56 @@ namespace MonoGame32.Entity
 
                 _velocity.Y += _currentSpeedY * dt;*/
             }
-            
+
             if (InputProcessor.KeyMoveLeftIsDown)
             {
                 _currentMaxVelocityX = WalkMaxVelocityX;
-                //_currentForceX += WalkForceX; // was -
-                
-                _currentForceX += WalkForceX;
+                _currentForceX += WalkForceX * dt;
+                _currentForceMaxX = WalkForceMaxX;
 
-                _currentForceMaxX = 1;
-                
-                //if (_currentForceX > _currentForceMaxX)
-                    //_currentForceX = WalkForceX;
-                
+                if (_currentForceX > _currentForceMaxX)
+                    _currentForceX = _currentForceMaxX;
+
                 _currentBrakeX = WalkBrakeX;
-
-                //_velocity.X += _currentForceX * dt;
                 _velocity.X = -1;
             }
 
             if (InputProcessor.KeyMoveRightIsDown)
             {
                 _currentMaxVelocityX = WalkMaxVelocityX;
-                _currentForceX += WalkForceX;
-                
-                _currentForceMaxX = 100;
-                
+                _currentForceX += WalkForceX * dt;
+                _currentForceMaxX = WalkForceMaxX;
+
                 if (_currentForceX > _currentForceMaxX)
                     _currentForceX = _currentForceMaxX;
-                
-                
-                _currentBrakeX = WalkBrakeX;
 
-                //_velocity.X += _currentForceX * dt;
+                _currentBrakeX = WalkBrakeX;
                 _velocity.X = 1;
             }
-            
-            /*if (_currentForceX > 0)
-                _currentForceX -= _currentBrakeX;
-            else
-                _currentForceX += _currentBrakeX;*/
-            
+
             if (!InputProcessor.KeyMoveLeftIsDown && !InputProcessor.KeyMoveRightIsDown)
             {
                 if (_currentForceX > 0)
-                    _currentForceX -= _currentBrakeX;
+                    _currentForceX -= _currentBrakeX * dt;
                 else
-                    _currentForceX += _currentBrakeX;
+                    _currentForceX += _currentBrakeX * dt;
             }
-
-            /*if (_currentForceX >= _currentMaxVelocityX)
-                _currentForceX = _currentMaxVelocityX;
-            else if (_currentForceX <= -_currentMaxVelocityX)
-                _currentForceX = -_currentMaxVelocityX;*/
 
             if (InputProcessor.KeyJumpWasDownLastFrame)
             {
-                Console.WriteLine(1);
+                //Console.WriteLine(1);
                 if (_isGrounded)
                 {
-                    Console.WriteLine(2);
+                    //Console.WriteLine(2);
                     if (!_isJumping)
                     {
-                        Console.WriteLine(3);
+                        //Console.WriteLine(3);
                         _currentMaxVelocityY = JumpMaxVelocityY;
                         _currentForceY = JumpForceY;
                         _currentBrakeY = JumpBrakeY;
 
                         _velocity.Y = -1;
-                        
+
                         _isJumping = true;
                         _isGrounded = false;
                     }
@@ -200,9 +183,9 @@ namespace MonoGame32.Entity
 
             if (_isGrounded)
             {
-                _currentMaxVelocityY = GravityY; // GroundedMaxVelocityY
+                _currentMaxVelocityY = GravityY / 12f; // GroundedMaxVelocityY
                 _currentForceY = 1; // 0
-                _currentBrakeY = GroundedResistanceY;
+                _currentBrakeY = GroundedBrakeY;
             }
             else // Is in air...
             {
@@ -211,26 +194,28 @@ namespace MonoGame32.Entity
                     _currentMaxVelocityY = InAirMaxVelocityY;
                     _currentForceY = AirForceY;
                     _currentBrakeY = AirResistanceY;
-                    
+
                     //_velocity.Y = 1;
                 }
 
                 //_velocity.Y += GravityY * dt; // Apply gravity.
             }
-            
+
             if (_velocity != Vector2.Zero) // else NaN
                 _velocity.Normalize();
 
             //if (_velocity.X > _currentMaxVelocityX)
             //    _velocity.X = _currentMaxVelocityX;
 
-            _velocity.X *= _currentForceX * dt;
-            _velocity.Y *= _currentForceY * dt;
-            
-            _velocity.Y += GravityY * dt; // Apply gravity.
+            Console.WriteLine(_currentForceY);
+             
+            _velocity.X *= _currentForceX;
+            _velocity.Y *= _currentForceY;
 
-            Console.WriteLine("Velo X: " +  _velocity.X);
-            
+            _velocity.Y += GravityY; // Apply gravity.
+
+            //Console.WriteLine("Velo X: " +  _velocity.X);
+
             if (_velocity.X > 0) // moving right?
             {
                 //_velocity.X -= _currentBrakeX * dt; // resistance = slow down
@@ -259,21 +244,20 @@ namespace MonoGame32.Entity
                 //    _velocity.Y = 0;
             }
 
-            Console.WriteLine("Velo X: " +  _velocity.X);
-            
+            //Console.WriteLine("Velo X: " +  _velocity.X);
+
             // Limit velocity - TODO: Is this still needed?
             if (_velocity.X > _currentMaxVelocityX) _velocity.X = _currentMaxVelocityX;
             else if (_velocity.X < -_currentMaxVelocityX) _velocity.X = -_currentMaxVelocityX;
             if (_velocity.Y > _currentMaxVelocityY) _velocity.Y = _currentMaxVelocityY;
             else if (_velocity.Y < -_currentMaxVelocityY) _velocity.Y = -_currentMaxVelocityY;
-            
+
             // Add velocity force to current position.
-            _position += _velocity;
-            
+            _position += _velocity * dt;
+
             //Console.WriteLine("Pos X: " + _position.X);
-            Console.WriteLine("Velo X: " +  _velocity.X);
-            Console.WriteLine("Velo Y: " +  _velocity.Y);
-            
+            Console.WriteLine("Velo X: " + _velocity.X);
+            Console.WriteLine("Velo Y: " + _velocity.Y);
         }
 
         public override void Tick(float dt)
@@ -387,7 +371,7 @@ namespace MonoGame32.Entity
 
                     _velocity.Y = 0;
                 }
-                
+
                 // This box needs to move before next OnCollision is checked against another box!
                 _box.SetBoxMin(new Vector3(_position.X - _box.BoxWidth / 2f, _position.Y - _box.BoxHeight / 2f, 0));
                 _box.SetBoxMax(new Vector3(_position.X + _box.BoxWidth / 2f, _position.Y + _box.BoxHeight / 2f, 0));

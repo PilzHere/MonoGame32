@@ -157,15 +157,28 @@ namespace MonoGame32.GameSettings
             }
         }
 
-        private static bool _settingCapFpsToTargetFps = true;
+        private static bool _settingSyncUpsWithFps = true;
 
-        public static bool SettingCapFpsToTargetFps
+        /// <summary>
+        /// Limits maximum UPS to maximum FPS.
+        /// </summary>
+        /// <example>
+        /// <br/><b>The state of Vertical Sync controls the behaviour such as:</b>
+        /// <br/><br/><b><see cref="SettingUseVSync"/> is active:<br/>false:</b> Limits FPS and UPS to <see cref="SettingTargetFps"/>.
+        /// <br/><b>true:</b> No Limit on FPS and UPS.
+        /// <br/><br/>
+        /// <b><see cref="SettingUseVSync"/> is disabled:<br/>false:</b> Limits FPS to VSync's FPS target. Limits UPS to <see cref="SettingTargetFps"/>.
+        /// <br/><b>true:</b> Limits FPS and UPS to VSync's FPS target.
+        /// <seealso cref="SettingUseVSync"/>
+        /// <seealso cref="SettingTargetFps"/>
+        /// </example>
+        public static bool SettingSyncUpsWithFps
         {
-            get => _settingCapFpsToTargetFps;
+            get => _settingSyncUpsWithFps;
             set
             {
-                _settingCapFpsToTargetFps = value;
-                _game.IsFixedTimeStep = _settingCapFpsToTargetFps;
+                _settingSyncUpsWithFps = !value;
+                _game.IsFixedTimeStep = _settingSyncUpsWithFps;
             }
         }
 
@@ -203,7 +216,7 @@ namespace MonoGame32.GameSettings
                     _graphics.IsFullScreen = false;
                 }
 
-                if (_settingUseVSync) _settingCapFpsToTargetFps = false;
+                if (_settingUseVSync) _settingSyncUpsWithFps = false;
 
                 _graphics.SynchronizeWithVerticalRetrace = _settingUseVSync;
                 _graphics.PreferMultiSampling = _settingMsaa;

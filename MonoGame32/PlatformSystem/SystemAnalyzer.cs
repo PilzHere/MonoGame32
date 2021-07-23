@@ -34,24 +34,17 @@ namespace MonoGame32.PlatformSystem
         public static void Init(GraphicsDevice graphicsDevice)
         {
             _graphicsDevice = graphicsDevice;
-
             _numberOfAdapters = GraphicsAdapter.Adapters.Count;
             _gpuName = GraphicsAdapter.DefaultAdapter.Description;
-
             _operatingSystem = Environment.OSVersion;
-
             _architecture = Environment.Is64BitOperatingSystem;
-
             _dotNetVersion = Environment.Version;
-
-
+            
             Console.WriteLine("-System-");
             Console.Write("OS: " + _operatingSystem.VersionString);
             Console.WriteLine(_architecture ? " 64 bit" : " 32 bit");
             Console.WriteLine("dotNET: " + _dotNetVersion);
             Console.WriteLine("GPU: " + _gpuName);
-
-
             Console.WriteLine("CPU: Logical cores: " + Environment.ProcessorCount);
 
             //Console.WriteLine("PageSize: " + GameMath.GameMath.BytesToMegabytes(Environment.SystemPageSize) + " MiB");

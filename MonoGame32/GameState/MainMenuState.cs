@@ -8,6 +8,7 @@ using MonoGame32.Collision;
 using MonoGame32.Component;
 using MonoGame32.Entity;
 using MonoGame32.Input;
+using KeyState = MonoGame32.Input.InputKeys.KeyState;
 
 namespace MonoGame32.GameState
 {
@@ -42,7 +43,7 @@ namespace MonoGame32.GameState
             for (int i = 8; i <= 224 * 2; i += 16)
                 Entities.Add(new Terrain(this, new Vector2(i, 8)));
             
-            player = new Player(this, new Vector2(0, 200));
+            player = new Player(this, new Vector2(256, 200));
             Entities.Add(player);
             
             //player2 = new Player(this, new Vector2(96, 32));
@@ -67,12 +68,12 @@ namespace MonoGame32.GameState
             /*if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
                 Keyboard.GetState().IsKeyDown(Keys.Escape)) Game.ExitGame();*/
             
-            if (InputProcessor.KeyExitIsDown) Game.ExitGame();
+            if (InputProcessor.KeyExitState == KeyState.DownOneFrame) Game.ExitGame();
 
-            if (Keyboard.GetState().IsKeyDown(Keys.F))
+            if (InputProcessor.KeyFullscreenState == KeyState.DownOneFrame)
                 GameSettings.GameSettings.SettingFullscreen = !GameSettings.GameSettings.SettingFullscreen;
             
-            if (Keyboard.GetState().IsKeyDown(Keys.F3))
+            if (InputProcessor.KeyRenderBoundingBoxesState == KeyState.DownOneFrame)
                 GameSettings.GameSettings.DrawBoundingBoxes = !GameSettings.GameSettings.DrawBoundingBoxes;
 
             player.HandleInput(dt);
