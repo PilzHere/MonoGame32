@@ -43,7 +43,7 @@ namespace MonoGame32.GameState
             for (int i = 8; i <= 224 * 2; i += 16)
                 Entities.Add(new Terrain(this, new Vector2(i, 8)));
             
-            player = new Player(this, new Vector2(256, 200));
+            player = new Player(this, new Vector2(256, 128));
             Entities.Add(player);
             
             //player2 = new Player(this, new Vector2(96, 32));

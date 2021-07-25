@@ -68,7 +68,7 @@ namespace MonoGame32
             GameSettings.GameSettings.WindowWidth = 426 * GameSettings.GameSettings.RenderScale; // 854
             GameSettings.GameSettings.WindowHeight = 240 * GameSettings.GameSettings.RenderScale; // 480
             GameSettings.GameSettings.SettingMsaa = false;
-            GameSettings.GameSettings.SettingUseVSync = false;
+            GameSettings.GameSettings.SettingUseVSync = true;
             GameSettings.GameSettings.SettingSyncUpsWithFps = true; // Using Vsync? You probably want this set to true.
             GameSettings.GameSettings.TimeBetweenFramesWhenCappedToMaxFps =
                 TimeSpan.FromSeconds(1d / GameSettings.GameSettings.SettingTargetFps);

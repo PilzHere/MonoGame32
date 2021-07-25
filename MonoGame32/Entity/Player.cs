@@ -207,7 +207,7 @@ namespace MonoGame32.Entity
             //if (_velocity.X > _currentMaxVelocityX)
             //    _velocity.X = _currentMaxVelocityX;
 
-            Console.WriteLine(_currentForceY);
+            //Console.WriteLine(_currentForceY);
              
             _velocity.X *= _currentForceX;
             _velocity.Y *= _currentForceY;
@@ -313,9 +313,6 @@ namespace MonoGame32.Entity
             {
                 var intersection = GameMath.GameMath.GetIntersectionDepth(_box, otherBoxComp);
 
-                //OnCollisionX(otherBoxComp);
-                //OnCollisionY(otherBoxComp);
-
                 //Console.WriteLine("Intersection X: " + intersection.X + " | Y: " + intersection.Y);
 
                 if (Math.Abs(intersection.X) < Math.Abs(intersection.Y))
@@ -375,75 +372,6 @@ namespace MonoGame32.Entity
                 // This box needs to move before next OnCollision is checked against another box!
                 _box.SetBoxMin(new Vector3(_position.X - _box.BoxWidth / 2f, _position.Y - _box.BoxHeight / 2f, 0));
                 _box.SetBoxMax(new Vector3(_position.X + _box.BoxWidth / 2f, _position.Y + _box.BoxHeight / 2f, 0));
-            }
-        }
-
-        public void OnCollisionX(BoxComp otherBoxComp)
-        {
-            var intersection = GameMath.GameMath.GetIntersectionDepth(_box, otherBoxComp);
-
-            //Console.WriteLine("X Intersection X: " + intersection.X + " | Y: " + intersection.Y);
-
-            if (Math.Abs(intersection.X) < Math.Abs(intersection.Y))
-            {
-                var thisBoxWidth = Math.Abs(_box.GetBoxMax().X - _box.GetBoxMin().X);
-
-                if (Math.Sign(intersection.X) < 0) // Collision on the X axis
-                {
-                    // Collision on entity right
-                    //Console.WriteLine("COL TO PLAYER RIGHT!!!");
-                    var targetLeft = otherBoxComp.GetBoxMin().X;
-                    _position.X = targetLeft - thisBoxWidth / 2f;
-
-                    _hitWallRight = true;
-                }
-                else
-                {
-                    // Collision on entity left
-                    //Console.WriteLine("COL TO PLAYER LEFT!!!");
-                    var targetRight = otherBoxComp.GetBoxMax().X;
-                    _position.X = targetRight + thisBoxWidth / 2f;
-
-                    _hitWallLeft = true;
-                }
-
-                _velocity.X = 0;
-            }
-        }
-
-        public void OnCollisionY(BoxComp otherBoxComp)
-        {
-            var intersection = GameMath.GameMath.GetIntersectionDepth(_box, otherBoxComp);
-
-            //Console.WriteLine("Y Intersection X: " + intersection.X + " | Y: " + intersection.Y);
-
-            if (Math.Abs(intersection.X) > Math.Abs(intersection.Y))
-            {
-                var thisBoxHeight = Math.Abs(_box.GetBox().Max.Y - _box.GetBox().Min.Y);
-
-                // TODO: (?) Are target's positions calculated correctly? (Top -> Min.Y & Bottom -> Max.Y)
-
-                if (Math.Sign(intersection.Y) < 0) // Collision on the Y axis
-                {
-                    // Collision on entity bottom
-                    //Console.WriteLine("COL TO PLAYER BOTTOM!!!");
-                    var targetTop = otherBoxComp.GetBoxMin().Y; // was Max.Y before...
-                    _position.Y = targetTop - thisBoxHeight / 2f;
-
-                    if (_isJumping) _isJumping = false;
-                    _isGrounded = true;
-                }
-                else
-                {
-                    // Collision on entity top
-                    //Console.WriteLine("COL TO PLAYER TOP!!!");
-                    var targetBottom = otherBoxComp.GetBoxMax().Y; // was Min.Y before...
-                    _position.Y = targetBottom + thisBoxHeight / 2f;
-
-                    if (_isJumping) _isJumping = false;
-                }
-
-                _velocity.Y = 0;
             }
         }
     }

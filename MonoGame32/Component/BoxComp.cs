@@ -21,8 +21,8 @@ namespace MonoGame32.Component
             _categoryBits = categoryBits;
             _maskBits = maskBits;
             
-            _boxWidth = _box.Max.X - _box.Min.X;
-            _boxHeight = _box.Max.Y - _box.Min.Y;
+            _boxWidth = Math.Abs(_box.Max.X - _box.Min.X);
+            _boxHeight = Math.Abs(_box.Max.Y - _box.Min.Y);
             
             _boxMidX = _box.Min.X + _boxWidth / 2f;
             _boxMidY = _box.Min.Y + _boxHeight / 2f;
